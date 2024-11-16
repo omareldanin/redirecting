@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirecting</title>
+    <style>
+      .center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 80vh;
+      }
+      h1 {
+        color: #000b58;
+        text-align: center;
+      }
+      .content {
+        text-align: center;
+      }
+      .codes {
+        width: 100%;
+        text-align: center;
+      }
+      button {
+        padding: 10px;
+        width: 100px;
+        background-color: #006a67;
+        color: #fff4b7;
+        font-weight: 400;
+        font-size: 18px;
+        border-radius: 5px;
+        margin: 0 8px;
+        border: none;
+        cursor: pointer;
+        transition: 300ms;
+      }
+      button:hover {
+        opacity: 0.8;
+      }
+      span {
+        color: green;
+        display: block;
+        margin: 10px auto;
+        font-size: 18px;
+        font-weight: bold;
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body class="center">
+    <div class="content">
+      <h1>Click to copy!</h1>
+      <div class="codes">
+        <button class="code1"></button>
+        <button class="code2"></button>
+      </div>
+      <span>copied</span>
+    </div>
+    <script src="lib.min.js"></script>
+    <script>
+      window.onload = () => {
+        const filePath = "links.xlsx"; // Replace with your file name
+
+        fetch(filePath)
+          .then((response) => response.arrayBuffer())
+          .then((data) => {
+            const workbook = XLSX.read(data, { type: "array" });
+            const sheetName = workbook.SheetNames[0]; // Get the first sheet
+            const sheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Get data as a 2D array
+
+            document.querySelector("button.code1").innerHTML = jsonData[1][0];
+            document.querySelector("button.code2").innerHTML = jsonData[1][1];
+
+            document.querySelectorAll("button").forEach((element) => {
+              element.addEventListener("click", () => {
+                navigator.clipboard.writeText(element.innerHTML).then(() => {
+                  document.querySelector("span").style.opacity = 1;
+                });
+              });
+            });
+
+            setTimeout(() => {
+              window.location.href = jsonData[1][2];
+            }, 3000); // 3000ms = 3 seconds
+          })
+          .catch((error) => {
+            console.error("Error loading the file:", error);
+          });
+      };
+    </script>
+  </body>
+</html>
